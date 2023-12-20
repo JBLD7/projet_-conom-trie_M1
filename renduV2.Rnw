@@ -1,0 +1,1158 @@
+% !Rnw weave = knitr
+\documentclass[a4paper, french, 11 pt, titlepage]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2cm, left=2cm, right=2cm}
+\usepackage{hyperref}
+\hypersetup{pdfborder=0 0 0}
+\usepackage{booktabs}
+\usepackage[skip=0.5\baselineskip]{caption}
+\usepackage[backend=bibtex, isbn=false, doi=false, url=false, eprint=false, citestyle=ext-authoryear, maxnames=5, clearlang=true, hyperref=true]{biblatex}
+\DeclareOuterCiteDelims{parencite}{\bibopenbracket}{\bibclosebracket}
+\usepackage[french=quotes, csdisplay=true]{csquotes}
+\usepackage{enumitem}
+\usepackage{array}
+\setlength{\extrarowheight}{0,1cm}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{inconsolata}
+\usepackage{appendix}
+\usepackage{newunicodechar}
+\newunicodechar{·}{\kern-.25em\textperiodcentered\kern-.25em}
+\renewcommand{\appendixpagename}{Annexes}
+\renewcommand{\appendixtocname}{Annexes}
+\usepackage{float}
+\usepackage[section]{placeins}
+
+
+\usepackage{tocloft}
+\addtolength{\cftfignumwidth}{30pt}% More space
+\addtolength{\cfttabnumwidth}{40pt}% More space
+\usepackage{caption}
+\captionsetup[table]{name=Tableau}
+
+\captionsetup[figure]{name=Fig.}
+
+
+
+
+\DeclareCaptionListFormat{figprefix}{\textsc{#1\figurename}~#2}
+\DeclareCaptionListFormat{tabprefix}{\textsc{#1\tablename}~#2}
+
+\captionsetup[figure]{listformat=figprefix, justification=centering}
+\captionsetup[table]{listformat=tabprefix, justification=centering}
+
+
+\addbibresource{biblio.bib}
+
+
+
+\title{Réplication d'un article : \enquote{L'université française, lieu de brassage ou de ségrégation sociale ?}\\
+\vspace{2cm}
+{\normalsize Projet d'économétrie --- Département de Sciences Humaines et Sociales\\
+\vspace{0,5cm}
+École normale supérieure Paris-Saclay}}
+\author{\normalsize Jean-Baptiste Lagrange-Dupuis}
+\date{\normalsize\today}
+
+\begin{document}
+
+\maketitle
+
+\pagenumbering{Roman}
+
+
+\tableofcontents
+\listoftables
+\newpage
+
+
+\newpage
+\listoffigures
+\vfill
+
+\noindent Toutes nos analyses ont été réalisées à l'aide du logiciel statistique R (version 4.2.1, R Core Team 2022). Les différents paquets utilisés sont listés en page~\pageref{sec:ref}. Ce document a été écrit avec \LaTeX. 
+\newpage
+
+\pagenumbering{arabic}
+\section*{Introduction}
+
+Dans la suite de ce travail nous nous proposons de répliquer un article \parencite{avouac2022}. Après avoir résumé l'article, nous présenterons brièvement la base de données utilisée ainsi que les transformations mises en \oe uvre, puis nous examinerons deux modèles, l'un linéaire et l'autre Tobit, visant à expliquer respectivement le financement des universités et le classement de Shanghai. 
+
+\section{Résumé de l'article}
+
+Dans leur article datant de 2022, Romain Avouac et Hugo Harari-Kermadec se proposent d'étudier les transformations récentes (2007-2015) des universités françaises, en particulier la question de leur polarisation. À partir des données du Système d'information sur le suivi de l'étudiant (SISE), ils procèdent en trois étapes : d'abord la mise en évidence de l'hétérogénéité de l'espace universitaire grâce à une ACP, puis des mesures de ségrégation et de polarisation visant à rendre compte de cette hétérogénéité et enfin la mise en relation de la polarisation constatée avec les dispositifs qui modifient la structure du champ universitaire, à l'instar des classements universitaires et des initiatives d'excellence. 
+
+Les chercheurs partent du constat que les classements internationaux, reflets de la globalisation de l'enseignement supérieur, ont conduit à une volonté politique de créer des établissements de renommée internationale qui bénéficient de dotations plus importantes, ce dont témoignent les \enquote{initiatives d'excellence} (Idex). Or l'une des conséquences de ces nouvelles modalités d'attribution et de répartition des financements au sein de l'Université française pourrait être une polarisation des établissements, avec un système éducatif \enquote{à deux vitesses}, où les universités de second rang (par opposition aux universités de rang mondial) se partageraient la portion congrue.
+
+Après un retour sur la massification de l'accès au supérieur en France ces dernières décennies, avec une diversification du profil et de l'origine des étudiant·es, les auteurs annoncent leur problématique : \enquote{Observe-t-on effectivement une polarisation du système universitaire français en matière de composition sociale ?}. Dans la suite du résumé, nous reprendrons le plan en trois parties de l'article.
+
+\subsection{Un paysage universitaire socialement hétérogène}
+
+Les auteurs mènent une Analyse en Composantes Principales (ACP) afin de visualiser la distribution des caractéristiques sociales et scolaires des populations étudiantes, en s'appuyant sur des variables telles que la catégorie socio-professionnelle du premier parent référent (qui caractérise ici l'origine sociale), la série du bac, le sexe des étudiant·es ainsi que leur cycle d'inscription  (le statut de boursier de supérieur et l'échelon associé sont laissés de coté car ces variables ne sont pas disponibles pour toutes les périodes). 
+
+L'ACP, dont on a retenu les deux premières composantes, ordonne horizontalement les établissements selon leur public, d'origine plus ou moins favorisée. Les variables qui contribuent le plus à cet ordonnancement ont trait à la profession des parents (CPIS, ouvrier non qualifiés ou employés) et au bac (professionnel ou technologique). Le second axe distingue les établissements à dominante littéraire de ceux à composante scientifique, y contribuent le plus les variables correspondant aux séries du bac. Lorsque l'ACP porte sur les établissements, elle montre que leurs publics sont très hétérogènes socialement, les enfants de CPIS (respectivement d'ouvriers) étant surreprésentés dans les universités parisiennes (respectivement du Nord et Sud-Est). 
+
+À partir de ces constatations, les auteurs établissent une typologie des établissements français en réalisant une classification ascendante hiérarchique à partir des deux dimensions principales de l'ACP, qui les conduit à distinguer quatre groupes, selon deux critères de sélection détaillés ci-après : 
+\begin{itemize}
+\item un premier critère distingue les établissements accueillant des publics d'origine sociale intermédiaire, ceux accueillant des publics populaires et ceux à composition sociale favorisée ;
+\item un second critère établit deux catégories, au sein des établissements à composition sociale favorisée, selon que ces établissements sont à dominante littéraire ou scientifique, l'hétérogénéité pour ce critère étant plus marquée au sein des établissements accueillant des publics favorisés. 
+\end{itemize}
+
+Cette polarisation plus importante au sein des établissements accueillant des publics favorisés s'explique aussi par l'effet des baccaularéats scientifiques, ces derniers étant prépondérants dans les établissements favorisés à dominante scientifique, là où les établissements littéraires accueillent des publics issus de bacs ES/L, de même que les établissements fréquentés par des étudiants issus de classes plus populaires, où sont présents davantage de bacheliers profesionnels et techniques. 
+
+\subsection{Une polarisation sociale croissante des établissements d'enseignement supérieur français}
+
+Cette seconde partie vise à tester deux hypothèses : d'une part l'hypothèse d'un mouvement de polarisation de l'enseignement supérieur français et d'autre part l'émergence d'une dimension ségrégative à la suite de la démocratisation de l'accès à l'université. 
+
+Pour rendre compte de la réalité de cette polarisation, les auteurs se proposent de mesurer l'évolution du barycentre de chacun des groupes d'établissements, et observent que si le groupe des compositions sociales intermédiaires et celui des compositions sociales favorisées à dominante littéraire tendent à s'ouvrir légèrement, les deux groupes restants (groupe à composition sociale favorisée et dominante scientifique et groupe accueillant des publics populaires) tendent à se fermer.
+
+Les auteurs conduisent d'abord une analyse visant à rendre compte de la ségrégation dans l'enseignement supérieur en utilisant l'indice d'entropie normalisé, qui mesure comment les catégories sociales du parent référent se répartissent dans les différents groupes de la typologie établie précédemment, et dont la baisse indique une réduction de la ségrégation. 
+
+Il s'agit ensuite de tester l'hypothèse d'une polarisation des établissements d'enseignement supérieur français relativement à leur composition sociale. Les auteurs choisissent d'appliquer le cadre économétrique de la polarisation \parencite{esteban1994}, dont il ressort un accroissement de la polarisation sociale des établissements supérieurs français entre 2005 et 2017, de l'ordre de 20\% (pour la typologie à quatre groupes). 
+
+Deux raisons sont avancées pour expliquer ces évolutions divergentes des mesures de ségrégation et de polarisation. D'une part, la baisse de l'indice d'entropie peut s'expliquer par un reforcement de l'homogénéité de chaque catégorie de la typologie prise isolément plutôt que par un rapprochement des barycentres des différentes catégories. D'autre part, là où l'indice d'entropie n'est calculé qu'à partir de la catégorie sociale du parent référent, l'analyse de la polarisation prend en compte davantage de critères afin de définir l'origine sociale des étudiant·es, ce qui peut expliquer l'évolution divergente de ces indicateurs : les auteurs constatent en effet une très forte augmentation du nombre de titulaires d'un baccalauréat professionnel dans l'enseignement supérieur, augmentation captée essentiellement par les établissements accueillant des publics populaires, où les baccalauréats professionnels étaient déjà nombreux, ce qui explique en partie la dynamique de polarisation sur la période 2007-2015.
+
+\subsection{Les \enquote{politiques d'excellence} de l'enseignement supérieur : une redistribution inversée ?}
+
+Dans cette troisième partie, les auteurs se donnent pour objectif d'identifier les causes du processus d'accroissement de l'hétérogénéité sociale des établissements entre 2007 et 2015. Ils envisagent d'abord la possibilité que cette polarisation soit liée à une augmentation des inégalités sociales entre les territoires, hypothèse qui est vite écartée du fait d'une forte propension à la mobilité géographique chez les étudiant·es. Ceci les conduit à étudier le lien entre la composition sociale des établissements et le fait d'être distingué par des dispositifs d'excellence, qui orientent en partie les politiques récentes de l'enseignement supérieur et constituent une source importante de revenus pour les établissements. À partir d'une ACP, les auteurs montrent que les universités labellisées IDEX accueillent des populations étudiantes plutôt favorisées tandis que les I-SITE correspondent à des universités à composition sociale intermédiaire. 
+
+Les auteurs concluent leur article par le constat d'une forte hétérogéneité sociale du système universitaire français, également caractérisé par une faible mixité sociale au sein des établissements. 
+
+
+\section{Présentation de la base de données}
+
+
+<<r, include=FALSE, cache=TRUE>>=
+library(tidyverse)
+library(readr)
+#commentaire
+sise20 <- read_delim("lil-1489 2.csv/Csv/sise20.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
+db_par_etablissement<-sise20 %>% 
+          #  filter(ETABLI!="") %>% #approfondir la question
+          #que ce passe-t-il avec les étudiants en prépa ?
+          #Qque se passe-t-il pour les inscriptions secondaires ? cf variable inspr
+group_by(ETABLI_DIFFUSION) %>%
+summarize(effectif = n_distinct(idet),
+                    Nom = first(ETABLI_DIFFUSION),
+                    age=mean(AGE),
+                    inspe=first(flag_meef),
+                    femmes=mean(SEXE==2,na.rm=T),
+                    hommes=mean(SEXE==1),
+                    dispoPCS=mean(PCSPAR!="99"), # on vérifie si la variable est souvent manquante
+                    chef_ent = mean(PCSPAR == 23),
+                    cadre_intelsup = mean(PCSPAR %in% c(31,33,34,35,37,38)),
+                    art_comm = mean(PCSPAR %in% c(21,22)),
+                    employe = mean(PCSPAR %in% 52:56),
+                    ouvrier_qualif = mean(PCSPAR ==61),
+                    ouvrier_non_qualif = mean(PCSPAR %in% c(66,69)),
+                    personnel_service = mean(PCSPAR == 56),
+                    contremaitre = mean(PCSPAR == 48),
+                    retraite_pop = mean(PCSPAR ==76),
+                    chomeur = mean(PCSPAR == 81),
+                    agriculteur = mean(PCSPAR == 10),
+                    prof_inter = mean(PCSPAR %in% 42:48),
+                    bac_S=mean(BAC_RGRP==3),
+                    bac_L=mean(BAC_RGRP==1),
+                    bac_ES=mean(BAC_RGRP==2),
+                    bac_pro = mean(BAC_RGRP == 6),
+                    bac_techno = mean(BAC_RGRP %in% c(4,5)),
+                    code_etab=first(ETABLI),
+                    licence=mean(CURSUS_LMD=="L"),
+                    master=mean(CURSUS_LMD=="M"),
+                    doctorat=mean(CURSUS_LMD=="D"),
+                    indice_composition_sociale = (mean(PCSPAR %in% c(23, 31, 33, 34, 35, 37, 38, 42))*4 + 
+                                                    mean(PCSPAR %in% c(43, 44, 45, 46, 47, 48))*3 +
+                                                    mean(PCSPAR %in% c(10, 21, 22, 52, 53, 54, 55, 56))*2+
+                                                    mean(PCSPAR %in% c(61, 66, 69, 71, 72, 73, 76, 81, 82))*1),
+                    public_favorisé = mean(PCSPAR %in% c(23, 31, 33, 34, 35, 37, 38, 42)),
+                    public_favorisé_large = mean(PCSPAR %in% c(23, 31, 33, 34, 35, 37, 38, 42, 43, 44, 45, 46, 47, 48)),
+                    public_défavorisé = mean(PCSPAR %in% c(61, 66, 69, 71, 72, 73, 76, 81, 82)),
+          )%>% ungroup() %>% arrange(-effectif)
+
+db_par_etablissement <- db_par_etablissement %>% filter(ETABLI_DIFFUSION!="CUFR MAYOTTE")
+
+Info_etab <- read_delim("Info_etab.csv", 
+                        delim = ";", escape_double = FALSE, trim_ws = TRUE) %>% 
+  filter(Sigle!="CU de Mayotte")
+db_complétée <-  db_par_etablissement %>% 
+  right_join(Info_etab, by=c("code_etab"="UAI"))
+@
+
+
+Les analyses qui suivent sont réalisées à partir des données de la base de données du SISE (Système d'information sur le suivi de l'étudiant) et de données sur le financement des universités provenant du package kpiESR de Julien Gossa. Ces deux bases de données ont été reliées après que les données du SISE, dont chaque observation correspond à un·e étudiant·e, ont été agrégées par établissement de façon à obtenir des moyennes des variables pertinentes pour chacun des établissements. 
+
+De nouvelles variables composites ont été crées, à commencer par la variable \texttt{cohorte\_shanghai} qui est un recodage du classement de shanghai : on a créé six catégories d'établissements à partir de leur rang au classement 2021 (lorsqu'on ne dispose pas du rang 2021, on prend celui de 2019 s'il existe, sinon on considère que le rang de l'établissement est strictement supérieur à 1000) : 
+
+\[\texttt{cohorte\_shanghai} = \begin{cases} 0 \text{ si } \texttt{class\_shanghai} \leq 20 \\ 
+1 \text{ si } \texttt{class\_shanghai} \leq 50 \\
+2 \text{ si } \texttt{class\_shanghai} \leq 100 \\
+3 \text{ si } \texttt{class\_shanghai} \leq 200 \\
+4 \text{ si } \texttt{class\_shanghai} \leq 500 \\
+5 \text{ si } \texttt{class\_shanghai} \leq 1000 \\
+6 \text{ si } \texttt{class\_shanghai} > 1000\end{cases}\]
+
+Une variable \texttt{Init\_Excel} a également été créée pour rendre compte de la labellisation des établissements (labels I-SITE et IDEX). Plutôt que de créer deux variables correspondant respectivement à chacun de ces deux labels, nous avons décidé, étant donné la \enquote{hiérarchie}\footnote{en effet, le gouvernement présente les I-SITE comme des universités \enquote{positionnées sur un nombre plus limité de thématiques} que les IDEX (\url{https://www.gouvernement.fr/idex-isite}{})} entre ces labels de créer une unique variable codée comme suit : 
+
+\[ \texttt{Init\_Excel} = \begin{cases} 0 \text{ si } \texttt{PerimEx} = \text{Non} \\
+1 \text{ si } \texttt{PerimEx} = \text{ISITE} \\
+2 \text{ si } \texttt{PerimEx} = \text{IDEx} \end{cases}\]
+
+D'autres variables ont été créées pour connaître la proportion d'étudiant constituant des publics favorisés ou défavorisés pour chaque établissement. Pour ce faire, nous avons repris le groupement des PCS en quatre catégories utilisé par la DEPP \parencite{rocher2016}, avec deux catégories favorisées, une catégorie moyenne et une catégorie défavorisée, en ne conservant qu'une catégorie favorisée, composée des étudiant·es ayant un parent référent cadre ou assimilé, chef d'entreprise, professeur des écoles ou assimilé, et une catégorie défavorisée, dont les étudiant·es ont un parent référent ouvrier ou inactif. Ces deux variables, qui correspondent donc à la proportion de parents appartenant à l'une ou à l'autre de ces catégories dans un établissement ont été nommées respectivement \texttt{public\_favorisé} et \texttt{public\_défavorisé}. Le tableau \ref{tab:variables} présente la répartition de ces variables composites ainsi que des autres principales variables utilisées dans la suite de l'article. 
+
+<<r quelques transformations sur la base, include=FALSE, cache=TRUE>>=
+db_complétée$class_shanghai <- ifelse(is.na(db_complétée$class_shanghai_21), 
+                                  ifelse(!is.na(db_complétée$class_shanghai_19), db_complétée$class_shanghai_19, NA),
+                                  db_complétée$class_shanghai_21)
+
+db_complétée$classé <- ifelse((!is.na(db_complétée$class_shanghai_19)|!is.na(db_complétée$class_shanghai_21)), 1, 0)
+
+db_complétée$Init_Excel <- ifelse(db_complétée$PerimEx=="Non", 0, 
+                               ifelse(db_complétée$PerimEx=="IDEx", 2, 1))
+
+db_complétée$classes_populaires <- db_complétée$ouvrier_qualif + 
+  db_complétée$ouvrier_non_qualif + 
+  db_complétée$employe +
+  db_complétée$contremaitre +
+  db_complétée$chomeur +
+  db_complétée$personnel_service +
+  db_complétée$retraite_pop
+
+db_complétée$class_shanghai <- ifelse(is.na(db_complétée$class_shanghai), 1100, db_complétée$class_shanghai)
+
+db_complétée$cohorte_shanghai <- ifelse(db_complétée$class_shanghai<=20, 0, 
+                                    ifelse(db_complétée$class_shanghai<=50, 1, 
+                                           ifelse(db_complétée$class_shanghai<=100, 2, 
+                                                  ifelse(db_complétée$class_shanghai<=200, 3, 
+                                                         ifelse(db_complétée$class_shanghai<=500, 4, 
+                                                                ifelse(db_complétée$class_shanghai<=1000, 5, 
+                                                                       6))))))
+
+
+db_complétée$coef_recherche <- db_complétée$recettesRecherche/db_complétée$recettesFormation
+
+
+lm2 <- lm(data=db_complétée, subvention ~ effectif + cohorte_shanghai + Init_Excel + public_défavorisé)
+
+@
+
+\section{Modèle linéaire pour expliquer le fonctionnement des universités}
+
+Nous cherchons à expliquer la subvention reçue par les établissements de la base de données à l'aide d'une régression linéaire. Nous considérons plusieurs potentielles variables explicatives des subventions : le nombre d'étudiants, le rang au classement de shanghai, la labellisation de l'établissement par une Initiative d'Excellence, et enfin le public accueilli par l'établissement, appréhendé par le biais du pourcentage d'étudiant·es défavorisé·es. Le tableau \ref{tb:lm1}, qui présente les différents paramètres de la régression linéaire, montre que seules les variables \texttt{effectif} et \texttt{Init\_Excel} sont significatives au seuil de 1\%.
+
+
+<<r star, results = 'asis', echo=FALSE, warning=FALSE, message=FALSE>>=
+library(stargazer, quietly = TRUE)
+library(xtable)
+stargazer(lm2, header=FALSE, type='latex', title='Paramètres estimés de la régression linéaire', style='commadefault', label="tb:lm1", float=TRUE)
+@
+
+Il est intéressant de noter que la variable relative au classement de shanghai n'est pas significative, ce qui ne nous permet donc pas de conclure à un lien entre le rang au classement de shanghai et le montant des subventions reçues par les établissements. De même, les types de publics accueillis par les établissements, appréhendés ici à travers le taux d'étudiant·es issu·es d'un milieu défavorisé, ne semble pas avoir d'influence sur le montant des subventions, alors que l'on aurait pu s'attendre à ce que certaines universités accueillant des publics plus populaires soient mieux dotés, où, à l'inverse à ce que les universités les mieux dotés soient des universités prestigieuses au recrutement sélectif où le taux d'étudiant·es issu·es de publics défavorisé est généralement plus faible, hypothèses que les résultats de la régression linéaire nous poussent à rejeter.
+
+La variable \texttt{effectif} apparaît très significative, ce qui semble plutôt intuitif dans la mesure où le coût de fonctionnement des universités est fortement corrélé avec le nombre d'étudiant·es qui y sont inscrit·es. Mais plus encore que les effectifs, la variable la plus fortement significative est \texttt{Init\_Excel}. Notons que la valeur très élevée du coefficient associé est à cette variable peut s'expliquer par le nombre très limité de modalités de cette variable (0, 1 ou 2), et que pour plus des trois quarts des universités, qui ne sont pas labellisées, cette variable vaut 0 (cf. Tableau \ref{tab:variables} en annexe A). Néanmoins, au vu de ce coefficient, nous pouvons conclure que la labellisation des établissements par des initiatives d'excellence a un bien un effet sur les subventions reçues.  
+
+\section{Modèle Tobit pour expliquer le classement de shanghai}
+
+<<tobit, results='asis', echo=FALSE, warning=FALSE, message=FALSE>>=
+library(AER)
+tobit0<-tobit(data=db_complétée,class_shanghai ~effectif + Init_Excel + public_défavorisé + master  + doctorat + bac_S  + femmes, right=1100)
+stargazer(tobit0,type="latex", style='commadefault', title='Paramètres estimés du modèle probit', label="tb:2")
+@
+
+À la lecture du tableau \ref{tb:2}, on note que tous les coefficients du modèle sont différents de 0, bien que le coefficient de la variable \texttt{effectif} soit faible. Par ailleurs, les probabilités critiques des coefficients sont inférieures à 1\%, sauf concernant les taux d'étudiant·es en doctorat et le pourcentage de femmes. Ces deux variables ne semblent donc pas significatives. Concernant les variables significatives, on observe que plus l'établissement compte d'étudiant·es, plus il est susceptible d'avoir un  faible rang au classement de shanghai : en d'autres termes, les établissements les plus gros sont globalement mieux classés, ce qui est cohérent étant donné que le classement de shanghai s'appuie notamment sur le nombre de Prix Nobel et de médailles Fields parmi les diplômés et les professeurs notamment, ou sur le nombre de chercheurs parmi les plus cités dans leur discipline, ce qui tend à favoriser les plus grosses universités – bien que ces valeurs soient rapportées au nombre d'étudiant·es et de professeurs que compte l'établissement. 
+
+La variable \texttt{Init\_Excel} joue également négativement sur le classement : les établissements labellisés I-SITE ou, a fortiori, IDEX, sont mieux classés que les autres. C'est à nouveau plutôt intuitif dans la mesure où ces labels visent à identifier et à construire des universités de rang mondial. La question qui peut se poser est néanmoins celle de la causalité : la labellisation I-SITE ou IDEX est-elle à l'origine de moyens supplémentaires accordés aux universités concernées, ce qui leur permet de gagner des places dans le classement ? Ou vient-elle confirmer la position dominante des ces universités dans les versions précédentes du classement de shanghai ?
+
+La variable \texttt{public\_défavorisé} joue elle positivement sur le rang des universités au classement de Shanghai. Les universités qui accueillent davantage d'étudiant·es dont les parents appartiennent à des milieux moins favorisés, à la fois du point de vue des revenus, mais également du point de vue de la distance sociale par rapport à l'école, se voient moins bien classées. Ajoutons qu'il s'agit de la variable dont le coefficient est le plus important. Ce résultat vient à l'appui de travaux précédents \parencite{avouac2022} qui montraient que les universités présentes dans le classement de Shanghai accueillent souvent des publics plus favorisés. 
+
+Concernant la variable \texttt{master}, il est intéressant de voir qu'elle joue positivement sur le classement : les universités ayant une forte proportion d'étudiant·es en master sont moins bien classées. On aurait pu penser qu'à l'inverse, les universités ayant beaucoup d'étudiants en master et en doctorat étaient mieux classées. Mais une observation de la base de données montre qu'on trouve parmi les universités ayant les taux les plus importants d'étudiant·es en master majoritairement de petits établissements (notamment les IEP de Lille, Rennes et Lyon, l'Observatoire de Paris, les universités de technologie de Compiègne, Troyes et Belfort-Montbéliard, etc.), dont le rang au classement de Shanghai est nécessairement important. 
+
+La très faible significativité du taux de doctorat peut s'expliquer par la très faible proportion de doctorats, quel que soit l'établissement : excepté pour quatre établissements (Comue Paris-Est et Bourgogne Franche-Comté, université PSL et INP Toulouse), le taux d'étudiant·es en doctorat est toujours inférieur à 1\% . 
+
+Le taux de bacheliers scientifiques est corrélé négativement avec le classement, ce qui semble cohérent dans la mesure où le classement de shanghai est davantage centré sur les sciences fondamentales, notamment en ce qu'il prend en compte par exemple les articles publiés dans \textit{Science} et \textit{Nature}, ou encore le nombre de prix Nobel, dans la mesure où certaines disciplines comme la sociologie, la psychologie, les langues, ou encore la philosophie ne sont pas concernées par ce prix.
+
+Enfin, la non significativité du taux de femmes indique une absence de lien entre cette variable et le classement de Shanghai, un résultat inverse aurait été étonnant. 
+
+Nos résultats concernant l'influence de la position sociale des parents des étudiant·es  et du nombre d'étudiant·es sur le classement de shanghai sont congruents avec ceux de Romain Avouac \parencite{2017MemoireDA}, néanmoins contrairement à lui, nous trouvons une corrélation significative entre le fait d'être haut dans le classement pour un établissement et la part d'étudiant·es bacheliers scientifiques. 
+
+\section{Analyse en composantes principales des universités françaises}
+
+Nous réalisons une analyse en composantes principales (ACP) sur les données SISE de 2007 que l'on compare à celle réalisée dans l'article de Romain Avouac et Hugo Harari-Kermadec \parencite{avouac2022}, puis sur laquelle on projette les établissements tels qu'ils étaient en 2021 afin de mesurer les transformations sur la période. 
+
+\subsection{Reproduction de l'ACP sur les données de 2007}
+
+<<acp_repro, include=FALSE, warning=FALSE, message=FALSE, cache=TRUE>>=
+library(readr)
+db_actif1 <- sise_univ_inscriptions_06 <- read_delim("lil-1103 2.csv/Csv/sise_univ_inscriptions_06.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+db_supp <- db_complétée
+
+db_actif2<- db_actif1 %>% 
+          #  filter(ETABLI!="") %>% #approfondir la question
+          #que ce passe-t-il avec les étudiants en prépa ?
+          #Qque se passe-t-il pour les inscriptions secondaires ? cf variable inspr
+  group_by(ETABLI) %>% 
+  summarize(effectif = n_distinct(idet),
+                    age=mean(AGE),
+                    femmes=mean(SEXE==2,na.rm=T),
+                    hommes=mean(SEXE==1),
+                    dispoPCS=mean(PCSPAR!="99"), # on vérifie si la variable est souvent manquante
+                    chef_ent = mean(PCSPAR == 23),
+                    agriculteur = mean(PCSPAR == 10),
+                    cadre_intelsup = mean(PCSPAR %in% c(31,33,34,35,37,38)),
+                    art_comm = mean(PCSPAR %in% c(21,22)),
+                    employe = mean(PCSPAR %in% 52:56),
+                    ouvrier_qualif = mean(PCSPAR ==61),
+                    ouvrier_non_qualif = mean(PCSPAR %in% c(66,69)),
+                    personnel_service = mean(PCSPAR == 56),
+                    contremaitre = mean(PCSPAR == 48),
+                    retraite_pop = mean(PCSPAR ==76),
+                    chomeur = mean(PCSPAR == 81),
+                    agriculteur = mean(PCSPAR == 10),
+                    prof_inter = mean(PCSPAR %in% 42:48),
+                    bac_S=mean(BAC_RGRP==3),
+                    bac_L=mean(BAC_RGRP==1),
+                    bac_ES=mean(BAC_RGRP==2),
+                    bac_pro = mean(BAC_RGRP == 6),
+                    bac_techno = mean(BAC_RGRP %in% c(4,5)),
+                    code_etab=first(ETABLI),
+                    licence=mean(CURSUS_LMD=="L"),
+                    master=mean(CURSUS_LMD=="M"),
+                    doctorat=mean(CURSUS_LMD=="D"),
+          )%>% ungroup() %>% arrange(-effectif)
+
+
+Info_etab <- read_delim("Info_etab_2.csv", 
+                        delim = ";", escape_double = FALSE, trim_ws = TRUE) %>% 
+  filter(Sigle!="CU de Mayotte")
+db_actif <-  db_actif2 %>% 
+  right_join(Info_etab, by=c("ETABLI"="UAI"))
+
+library(tidyverse)
+library(FactoMineR)
+
+db_actif <- db_actif %>% mutate(etab_nom = paste(Etablissement, "2007")) %>% 
+  mutate(année = 2007) %>% 
+  mutate(Sigle = paste(Sigle, "2007"))
+
+db_supp <- db_supp %>% mutate(etab_nom = paste(ETABLI_DIFFUSION, "2021")) %>% 
+  mutate(année=2021) %>% 
+  mutate(Sigle = paste(Sigle, "2021")) 
+
+
+
+
+pour_pca_0 <-  db_actif %>% 
+  select(starts_with(c("bac_","boursier_")),  #et genre et LMD: var sup à la fin ;
+         c("agriculteur", "ouvrier_non_qualif", "ouvrier_qualif", "prof_inter", "art_comm", "cadre_intelsup", "chef_ent", "employe",
+           "hommes","femmes","licence","master","doctorat")) 
+out_pca0 <- PCA(pour_pca_0, quanti.sup=14:18)
+pour_plot0 <- db_actif %>% cbind(rbind.data.frame(out_pca0$ind$coord, out_pca0$ind.sup$coord)) %>% 
+  mutate(Ouverture=Dim.1,Discipline=Dim.2,Fermeture=-Dim.1) 
+
+
+@
+
+<<pca_code, include=FALSE, warning=FALSE, message=FALSE>>=
+library(tidyverse)
+library(FactoMineR)
+pour_pca_avant<-bind_rows(db_actif,db_supp) #on selection les bacs, les bousiers, les pcs, 
+rownames(pour_pca_avant)<-bind_rows(db_actif,db_supp)$etab_nom
+
+
+pour_pca2 <- pour_pca_avant %>% 
+  select(starts_with(c("bac_","boursier_")),  #et genre et LMD: var sup à la fin ;
+         c("agriculteur", "ouvrier_non_qualif", "ouvrier_qualif", "prof_inter", "art_comm", "cadre_intelsup", "chef_ent", "employe",
+           "hommes","femmes","licence","master","doctorat")) 
+
+
+out_pca2 <- PCA(pour_pca2, quanti.sup=14:18, ind.sup=118:201)
+
+
+pour_plot <- pour_pca_avant %>% cbind(rbind.data.frame(out_pca2$ind$coord, out_pca2$ind.sup$coord)) %>% 
+  mutate(Ouverture=Dim.1,Discipline=Dim.2,Fermeture=-Dim.1) 
+pour_plot$nom_annee<-rownames(pour_pca_avant)
+
+db_flag <- pour_plot %>% 
+  group_by(Etablissement) %>% summarize(flag = n_distinct(effectif,na.rm=T)) %>% ungroup()
+
+pour_plot <- pour_plot %>% right_join(db_flag)
+pour_plot<- pour_plot[!is.na(pour_plot$hommes),]
+
+@
+Notons au sujet de cette ACP reproduite à partir de l'article mentionné plus haut que nous obtenons des chiffres assez similaires à ceux de \cite{avouac2022} pour la variance expliquée par chaque dimension, bien qu'inférieurs (41\% et 19\% respectivement pour nos premières et deuxième dimension, contre 44\% et 19\%, voir \hyperref[annexed]{annexe D}). L'\enquote{éboulis} du pourcentage d'inertie selon les dimensions de l'ACP permet, en application du critère du coude, nous conduit à retenir les 2 premières composantes principales (cf. \hyperref[annexed]{annexe D}).
+
+
+\begin{figure}[h!]
+\caption{Représentation des variables de l'ACP sur les données de 2007\label{graph:acpfleches1}}
+<<graph_pca_1, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+
+library("factoextra")
+fviz_pca_biplot(out_pca2, 
+                repel = TRUE,
+                col.var = "black",
+                col.ind = "black",
+                invisible = c("ind.sup", "ind"),
+                col.quanti.sup = "grey",
+                geom="point") +
+  labs(title = element_blank())
+@
+\caption*{\footnotesize Note : Les variables actives sont représentées en noir et les variables supplémentaires en gris}
+\end{figure}
+
+Comme on peut le voir sur le graphique \ref{acpfleches1}, les deux dimensions principales de notre analyse correspondent bien à celles de l'ACP que nous cherchons à reproduire \parencite{avouac2022}, avec un axe horizontal (première dimension) qui correspond à la composition sociale des universités, avec les publics d'origine favorisé à gauche et les publics d'origine populaire à droite, et un axe vertical (seconde dimension) qui oppose les établissements à dominante scientifique de ceux à dominante littéraire et/ou économique et sociale. 
+
+\begin{figure}[h!]
+\caption{Représentation des individus de l'ACP en 2007}
+<<graph_acp_repro, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+require("ggrepel")
+library(ggh4x)
+ggplot(data=pour_plot0[!is.na(pour_plot0$effectif),],aes(x=Ouverture,y=-Discipline))+
+  geom_point(aes(col = Etablissement))+
+  annotate(geom = "text", x= 5, y = 0.8, label = "Ouverture", size = 10/.pt) +
+  annotate(geom = "text", x= -5, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1, y = 5, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+  geom_text_repel(aes(label=Sigle, col = Etablissement),size=2)+
+  theme(axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),legend.position="none",#c(.95,.9),
+        panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  linewidth = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+
+@
+\end{figure}
+
+
+
+
+\subsection{Projection des données de 2021 sur l'ACP des données de 2007}
+
+Il s'agit désormais de projeter sur notre ACP de 2007 les établissements de 2021, afin de pouvoir comparer en toute rigueur et sur le même plan factoriel l'évolution des positions des universités entre 2007 et 2011. 
+\vspace{0.5cm}
+
+\noindent \fcolorbox{black}{gray!25}{
+\begin{minipage}{\linewidth}
+\textsc{Encadré 1 --- } Transformations réalisées sur la base \texttt{Info.Etab}
+\vspace{0.5cm}
+
+Étant donné les nombreuses fusions d'établissements entre 2007 et 2021, il nous a fallu opérer quelques modifications sur la base de données \texttt{Info.Etab} de façon à y inclure les noms et sigles des établissements ayant été absorbés entre-temps. Il manquait de fait dans la base une quinzaine d'université (notamment Bordeaux 1, 2 et 3, Lille 1, 2 et 3, Strasbourg 1, 2 et 3, Paris 4, 5, 6, 7 et 11, Aix 1, 2 et 3 ou encore CergyPontoise) qui n'étaient donc pas représentées sur l'ACP. 
+\end{minipage}}
+\vspace{0.5cm}
+
+
+
+
+
+<<valeurs propres, include=FALSE, warning=FALSE, message=FALSE>>=
+eig <- get_eig(out_pca2)
+x <- sum(eig)
+x
+@
+
+Notre ACP, comme la précédente, est construite à partir de 13 variables, auxquelles s'ajoutent 5 variables inactives. Les variables et individus actifs sont les mêmes que pour l'ACP précédente, mais on a ajouté en individus supplémentaires les universités telles qu'elles étaient en 2021. Si le graphique des l'inertie en fonction des dimensions de l'ACP (cf. \hyperref[annexed]{annexe D}) est globalement très similaire à celui de l'ACP portant uniquement sur les données de 2007, on observe quelques différences, \textcolor{red}{que nous ne parvenons pas à expliquer}. 
+
+
+
+\begin{figure}[h!]
+\caption{Représentation des individus de l'ACP en 2007 et en 2021 \label{graph:acpboth}}
+<<graph_pca_comp, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+require("ggrepel")
+ggplot(data=pour_plot,aes(x=Ouverture,y=-Discipline))+
+  geom_point(aes(col = Etablissement))+
+  geom_text_repel(aes(label=Sigle, col=Etablissement),size=2)+
+  geom_path(data=pour_plot[pour_plot$flag==2,], aes(group=Etablissement, col=Etablissement))+
+  annotate(geom = "text", x= 5, y = 0.8, label = "Ouverture", size = 10/.pt) +
+  annotate(geom = "text", x= -5, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1, y = 5, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+  theme(axis.text.x=element_blank(), axis.text.y=element_blank(), axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),legend.position="none",#c(.95,.9),
+        panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  size = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+@
+\caption*{\footnotesize Note : le plan est celui de l'ACP de 2007, les établissements de 2021 sont des individus supplémentaires.}
+\end{figure}
+
+Le graphique \ref{graph:acpboth} montre un certain nombre de changements au sein des universités françaises en 2007 et 2021, bien qu'il soit difficile d'identifier à ce stade des tendances globales, on peut distinguer un mouvement vers la droite (donc vers l'ouverture sociale) des universités du quart nord-ouest (public favorisé, dominante littéraire). Il semble plus difficile d'identifier une tendance pour les moitié droite (ouverture sociale, public populaires) et sud (dominante scientifique) du graphique. 
+
+Deux hypothèses nous semblent à même d'expliquer ces changements dans la position des universités sur l'ACP entre 2007 et 2021 : il est possible que les axes de l'ACP de 2007 ne soient plus adéquats, que ces changements soient liés à des modifications structurelles, par exemple à la perte de pertinence de certaines variables. Si ce n'est pas le cas, alors la modification des positions sur le graphique pourrait résulter de changements dans la composition sociale des universités qui auraient occasionné entre 2007 et 2021 une recomposition dy paysage universitaire français. Nous allons réaliser une ACP portant uniquement sur les universités de 2021 afin de savoir si nos variables sont aussi pertinentes pour analyser les universités en 2021 qu'en 2007. 
+
+\subsection{Réalisation d'une ACP sur les données de 2021}
+
+
+<<avant_acp_uniq2021, include=FALSE, warning=FALSE, message=FALSE>>=
+db_complétée2 <-  db_complétée
+db_complétée<- db_complétée[!is.na(db_complétée$hommes),]
+pour_cah_2021 <-  db_complétée %>% 
+  select(starts_with(c("bac_","boursier_")),  #et genre et LMD: var sup à la fin ;
+         c("agriculteur", "ouvrier_non_qualif", "ouvrier_qualif", "prof_inter", "art_comm", "cadre_intelsup", "chef_ent", "employe",
+           "hommes","femmes","licence","master","doctorat")) 
+out_cah_2021 <- PCA(pour_cah_2021, quanti.sup=14:18)
+pour_plot_cah_2021 <- db_complétée %>% cbind(rbind.data.frame(out_cah_2021$ind$coord, out_cah_2021$ind.sup$coord)) %>% 
+  mutate(Ouverture=Dim.1,Discipline=Dim.2,Fermeture=-Dim.1) %>% 
+  mutate(Sigle = paste(Sigle, "2021")) 
+@
+
+
+\begin{figure}[h!]
+\caption{Représentation des variables de l'ACP sur les données de 2007\label{graph:acpfleches2}}
+<<graph_pc_uniq2021_flèches, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+library("factoextra")
+fviz_pca_biplot(out_cah_2021, 
+                repel = TRUE,
+                col.var = "black",
+                invisible = "ind",
+                col.quanti.sup = "grey",
+                geom="point") +
+  labs(title = element_blank())
+
+@
+\caption*{\footnotesize Note : les variables actives sont représentées en noir et les variables supplémentaires en gris.}
+\end{figure}
+
+La graphique \ref{graph:acpfleches2} montre que, selon toute vraisemblance, les variables utilisées sont aussi pertinentes en 2021 qu'en 2007. Elles suivent de surcroît une répartition analogue sur le graphique\footnote{Le graphique présentant les positions des établissements sur l'ACP de 2021 (graphique \ref{graph:acpuniq2021}) est disponible en \hyperref[annexed]{annexe D}}. Ceci nous permet de conclure à des changements dans la composition sociale des universités, hypothèse qu'il s'agira d'approfondir et de préciser en menant une classification ascendante hiérarchique. 
+
+
+\section{Classification ascendante hiérarchique des universités}
+
+\subsection{Essai de reproduction de la CAH présentée dans l'article}
+
+Il s'agit ici de reproduire la classification ascendante hiérarchique présentée dans l'article de \cite{avouac2022}. La classification à laquelle nous parvenons (cf. graphique \ref{graph:cah1}) est globalement similaire à celle que nous voulons reproduire, les différences s'expliquent principalement par un nombre beaucoup plus faible de points (d'universités observées). Nos groupes sont donc moins \enquote{consistants} que ceux de la CAH de Avouac et Harari-Kermadec, mais il nous semble que cela ne remet pas en cause la déclinaison des groupes qu'ils proposent, à savoir : public favorisés à dominante respectivement littéraire et scientifique, publics intermédiaires et publics populaires. 
+
+
+<<avant_cah, include=FALSE, warning=FALSE, message=FALSE>>=
+library(FactoMineR)
+hcpc_2007 <- HCPC(pour_plot0[,c("Fermeture","Discipline")], nb.clust=4,consol=F)
+
+library(ggh4x)
+require("ggrepel")
+library(tidyverse)
+pour_plot_hcpc1<-pour_plot0 %>% mutate(Classe=hcpc_2007$data.clust$clust)
+@
+
+\begin{figure}[h!]
+\caption{Représentation de la typologie issue de la CAH de 2007\label{graph:cah1}}
+<<graph_cah_com2, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+ggplot(data=pour_plot_hcpc1,aes(x=-Fermeture,y=-Discipline,color=Classe))+
+  geom_point(shape=16)+
+  geom_text_repel(aes(label=Sigle),size=3, show.legend=FALSE)+
+  annotate(geom = "text", x= 5, y = -0.3, label = "Ouverture", size = 10/.pt) +
+  annotate(geom = "text", x= -5.5, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = 4, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+  scale_color_manual(labels = c("public populaires", "publics intermédiaires", "public favorisé (dominante scientifique)", "public favorisé (dominante littéraire)"), values = c("lightblue", "orange", "lightgreen", "violet")) +
+    theme(axis.text.x=element_blank(), axis.text.y=element_blank(), axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),legend.position="bottom",
+  legend.text=element_text(size=9),#c(.95,.9),
+        panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  size = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+@
+\end{figure}
+
+<<calculs_cah1, include=FALSE, warning=FALSE, message=FALSE>>=
+
+bary_x_1 <- mean(pour_plot_hcpc1$Fermeture[pour_plot_hcpc1$Class==1])
+bary_x_2 <- mean(pour_plot_hcpc1$Fermeture[pour_plot_hcpc1$Class==2])
+bary_x_3 <- mean(pour_plot_hcpc1$Fermeture[pour_plot_hcpc1$Class==3])
+bary_x_4 <- mean(pour_plot_hcpc1$Fermeture[pour_plot_hcpc1$Class==4])
+
+bary_y_1 <- mean(pour_plot_hcpc1$Discipline[pour_plot_hcpc1$Class==1])
+bary_y_2 <- mean(pour_plot_hcpc1$Discipline[pour_plot_hcpc1$Class==2])
+bary_y_3 <- mean(pour_plot_hcpc1$Discipline[pour_plot_hcpc1$Class==3])
+bary_y_4 <- mean(pour_plot_hcpc1$Discipline[pour_plot_hcpc1$Class==4])
+
+Fermeture <- c(bary_x_1, bary_x_2, bary_x_3, bary_x_4)
+Discipline <- c(bary_y_1, bary_y_2, bary_y_3, bary_y_4)
+
+df <- data.frame(Fermeture, Discipline)
+
+library(FactoMineR)
+pour_plot2021 <-  pour_plot[pour_plot$année==2021,]
+hcpc_2021 <- HCPC(pour_plot2021[c("Fermeture","Discipline")], nb.clust=4,consol=F)
+
+library(ggh4x)
+require("ggrepel")
+library(tidyverse)
+pour_plot_hcpc2<-pour_plot[pour_plot$année==2021,] %>% mutate(Classe=hcpc_2021$data.clust$clust)
+@
+
+
+
+
+<<cah_2021_test, include=FALSE, warning=FALSE, message=FALSE>>=
+#On tente un essai directement sur les données de 2021 pour être sûr
+
+
+
+library(FactoMineR)
+cah_2021 <- HCPC(pour_plot_cah_2021[c("Fermeture","Discipline")], nb.clust=4,consol=F)
+
+pour_plot_cah_final<-pour_plot_cah_2021 %>% mutate(Classe=cah_2021$data.clust$clust)
+
+
+
+@
+
+\subsection{CAH sur les données de 2021}
+
+Nous réalisons désormais une classification ascendante hiérarchique sur le modèle de la précédente pour les données établissements de 2021. Il s'agit de voir si nos groupes sont aussi \enquote{consistants} qu'en 2007, en sommes si une classification en quatre groupes est toujours pertinente en 2021 et quelles sont les modifications au sein des groupes. 
+
+\begin{figure}[h!]
+\caption{Représentation de la typologie issue de la CAH de 2021 \label{graph:cah2021}}
+<<graph_cah_comp_test, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+ggplot(data=pour_plot_cah_final,aes(x=-Fermeture,y=-Discipline,color=Classe))+
+  geom_point(shape=16)+
+  geom_text_repel(aes(label=Sigle),size=3, show.legend=FALSE)+
+  annotate(geom = "text", x= 5, y = -0.3, label = "Ouverture", size = 10/.pt) +
+  annotate(geom = "text", x= -5.5, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = 4, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+  scale_color_manual(labels = c("public populaire", "public intermédiaire", "public favorisé (dominante scientifique)", "public favorisé (dominante littéraire)"), values = c("lightblue", "orange", "lightgreen", "violet")) +
+    theme(axis.text.x=element_blank(), axis.text.y=element_blank(), axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),legend.position="bottom",#c(.95,.9),
+        panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  size = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+
+@
+\end{figure}
+
+De fait, il semblerait au vu du graphique \ref{graph:cah2021} que la déclinaison en quatre groupes adoptée pour 2007 demeure pertinente en 2021, avec deux groupes à composition sociale favorisée, qui regroupent des établissements à dominante respectivement scientifique et littéraire ou économique, un groupe à composition sociale intermédiaire et un dernier groupe accueillant un public populaire. 
+
+\subsection{Dynamique des groupes d'établissements entre 2007 et 2021}
+
+Afin de comparer l'évolution de chaque groupe sur le plan entre 2007 et 2021, nous représentons l'évolution du barycentre de chaque groupe sur le plan factoriel entre 2007 et 2021 (les points moyens de chaque groupe sur les deux dimensions de l’ACP, pondérés par le nombre d’étudiants inscrits dans les différents établissements). Pour plus de détails, voir l'encadré 2. 
+
+
+\begin{figure}[htb]
+\noindent \fcolorbox{black}{gray!25}{
+\begin{minipage}{\linewidth}
+\textsc{Encadré 2 --- } Méthode pour mesurer l'évolution de la position de chaque groupe sur le plan de l'ACP
+
+
+Comme pour la comparaison intertemporelle des positions des établissements sur l'ACP, nous reprenons le plan de l'ACP de 2007 sur lequel nous projetons les établissements tels qu'ils étaient en 2021. La difficulté est ici de savoir à quel groupe appartiennent les établissements de 2021. Nous utilisons la variable \texttt{Etablissement} afin, dans le but de comparer des groupes qui soient les plus homogènes possibles entre 2007 et 2021, de placer les établissements de 2021 dans e groupe qui était le leur en 2007. Cette méthode a des inconvénients, notamment parce qu'elle exclut les établissements nés de fusions qui n'apparaissent donc pas dans la base de 2007, ce qui est d'autant plus regrettable que ces établissements sont souvent d'un taille conséquente (c'est le cas pour l'université PSL ou Paris-saclay Université, pour ne citer qu'elles). Soulignons néanmoins que ces inconvénients sont inhérents à toute comparaison intertemporelle : même en procédant à un codage manuel, il serait impossible de faire figurer ces nouveaux établissements dans un groupe donné sans opérer de choix normatifs, étant donné que les différents établissements composantes de ces grandes universités n'appartenaient le plus souvent, en 2007, pas à seul et unique groupe. 
+
+Par ailleurs, nous appuyer sur les groupes issus de la CAH de 2021 n'aurait pas davantage de sens étant donné que nous comparerions alors des points situés sur des plans différents (le plan de l'ACP de 2007 et celui de l'ACP de 2021) et, de surcroît, les barycentres de groupes différents, certains établissements étant passés d'un groupe à l'autre en 14 ans. 
+\end{minipage}}
+\end{figure}
+
+
+<<cah_2021, include=FALSE, warning=FALSE, message=FALSE>>=
+pour_cah_comp <- pour_plot
+
+library(FactoMineR)
+hcpc_2007comp <- HCPC(pour_cah_comp[pour_cah_comp$année==2007,c("Fermeture","Discipline")], nb.clust=4,consol=F)
+
+library(ggh4x)
+require("ggrepel")
+library(tidyverse)
+pour_cah_comp2 <-pour_plot[pour_plot$année==2007,] %>% mutate(Classe=hcpc_2007comp$data.clust$clust)
+
+pour_cah_comp3<-bind_rows(pour_cah_comp2,pour_plot[pour_plot$année==2021,]) #on selection les bacs, les bousiers, les pcs, 
+
+db_classe <- pour_cah_comp3 %>% 
+  group_by(Etablissement) %>% 
+  summarize(classe_cah = first(Classe)) %>% 
+  ungroup()
+
+pour_cah_comp4 <- pour_cah_comp3 %>% right_join(db_classe)
+pour_cah_comp4 <- pour_cah_comp4[!is.na(pour_cah_comp4$classe_cah),]
+
+cah_2007 <- pour_cah_comp4[pour_cah_comp4$année==2007,]
+
+bary_x_1 <- mean(cah_2007$Fermeture[cah_2007$classe_cah==1])
+bary_x_2 <- mean(cah_2007$Fermeture[cah_2007$classe_cah==2])
+bary_x_3 <- mean(cah_2007$Fermeture[cah_2007$classe_cah==3])
+bary_x_4 <- mean(cah_2007$Fermeture[cah_2007$classe_cah==4])
+
+bary_y_1 <- mean(cah_2007$Discipline[cah_2007$classe_cah==1])
+bary_y_2 <- mean(cah_2007$Discipline[cah_2007$classe_cah==2])
+bary_y_3 <- mean(cah_2007$Discipline[cah_2007$classe_cah==3])
+bary_y_4 <- mean(cah_2007$Discipline[cah_2007$classe_cah==4])
+
+
+bary_x_1 <- sum(cah_2007$Fermeture[cah_2007$classe_cah==1]*cah_2007$effectif[cah_2007$classe_cah==1])/sum(cah_2007$effectif[cah_2007$classe_cah==1])
+bary_x_2 <- sum(cah_2007$Fermeture[cah_2007$classe_cah==2]*cah_2007$effectif[cah_2007$classe_cah==2])/sum(cah_2007$effectif[cah_2007$classe_cah==2])
+bary_x_3 <- sum(cah_2007$Fermeture[cah_2007$classe_cah==3]*cah_2007$effectif[cah_2007$classe_cah==3])/sum(cah_2007$effectif[cah_2007$classe_cah==3])
+bary_x_4 <- sum(cah_2007$Fermeture[cah_2007$classe_cah==4]*cah_2007$effectif[cah_2007$classe_cah==4])/sum(cah_2007$effectif[cah_2007$classe_cah==4])
+                                                                                                          
+bary_y_1 <- sum(cah_2007$Discipline[cah_2007$classe_cah==1]*cah_2007$effectif[cah_2007$classe_cah==1])/sum(cah_2007$effectif[cah_2007$classe_cah==1])
+bary_y_2 <- sum(cah_2007$Discipline[cah_2007$classe_cah==2]*cah_2007$effectif[cah_2007$classe_cah==2])/sum(cah_2007$effectif[cah_2007$classe_cah==2])
+bary_y_3 <- sum(cah_2007$Discipline[cah_2007$classe_cah==3]*cah_2007$effectif[cah_2007$classe_cah==3])/sum(cah_2007$effectif[cah_2007$classe_cah==3])
+bary_y_4 <- sum(cah_2007$Discipline[cah_2007$classe_cah==4]*cah_2007$effectif[cah_2007$classe_cah==4])/sum(cah_2007$effectif[cah_2007$classe_cah==4])
+
+
+
+
+cah_2021 <- pour_cah_comp4[pour_cah_comp4$année==2021,]
+bary_x_11 <- mean(cah_2021$Fermeture[cah_2021$classe_cah==1])
+bary_x_22 <- mean(cah_2021$Fermeture[cah_2021$classe_cah==2])
+bary_x_33 <- mean(cah_2021$Fermeture[cah_2021$classe_cah==3])
+bary_x_44 <- mean(cah_2021$Fermeture[cah_2021$classe_cah==4])
+
+bary_y_11 <- mean(cah_2021$Discipline[cah_2021$classe_cah==1])
+bary_y_22 <- mean(cah_2021$Discipline[cah_2021$classe_cah==2])
+bary_y_33 <- mean(cah_2021$Discipline[cah_2021$classe_cah==3])
+bary_y_44 <- mean(cah_2021$Discipline[cah_2021$classe_cah==4])
+
+bary_x_1 <- sum(cah_2021$Fermeture[cah_2021$classe_cah==1]*cah_2021$effectif[cah_2021$classe_cah==1])/sum(cah_2021$effectif[cah_2021$classe_cah==1])
+bary_x_2 <- sum(cah_2021$Fermeture[cah_2021$classe_cah==2]*cah_2021$effectif[cah_2021$classe_cah==2])/sum(cah_2021$effectif[cah_2021$classe_cah==2])
+bary_x_3 <- sum(cah_2021$Fermeture[cah_2021$classe_cah==3]*cah_2021$effectif[cah_2021$classe_cah==3])/sum(cah_2021$effectif[cah_2021$classe_cah==3])
+bary_x_4 <- sum(cah_2021$Fermeture[cah_2021$classe_cah==4]*cah_2021$effectif[cah_2021$classe_cah==4])/sum(cah_2021$effectif[cah_2021$classe_cah==4])
+                                                                                                          
+bary_y_1 <- sum(cah_2021$Discipline[cah_2021$classe_cah==1]*cah_2021$effectif[cah_2021$classe_cah==1])/sum(cah_2021$effectif[cah_2021$classe_cah==1])
+bary_y_2 <- sum(cah_2021$Discipline[cah_2021$classe_cah==2]*cah_2021$effectif[cah_2021$classe_cah==2])/sum(cah_2021$effectif[cah_2021$classe_cah==2])
+bary_y_3 <- sum(cah_2021$Discipline[cah_2021$classe_cah==3]*cah_2021$effectif[cah_2021$classe_cah==3])/sum(cah_2021$effectif[cah_2021$classe_cah==3])
+bary_y_4 <- sum(cah_2021$Discipline[cah_2021$classe_cah==4]*cah_2021$effectif[cah_2021$classe_cah==4])/sum(cah_2021$effectif[cah_2021$classe_cah==4])
+
+Fermeture <- c(bary_x_1, bary_x_2, bary_x_3, bary_x_4, bary_x_11, bary_x_22, bary_x_33, bary_x_44)
+Discipline <- c(bary_y_1, bary_y_2, bary_y_3, bary_y_4, bary_y_11, bary_y_22, bary_y_33, bary_y_44)
+Classe <- c(1, 2, 3, 4, 1, 2, 3, 4)
+année <- c(2007, 2007, 2007, 2007, 2021, 2021, 2021, 2021)
+df_barycentres <- data.frame(Fermeture, Discipline, Classe, année)
+
+
+@
+
+
+\begin{figure}[h!]
+\caption{Évolution des barycentres dans la typologie à quatre groupes issue de la CAH entre 2007 et 2021 \label{graph:bary}}
+<<graph_cah_comp6, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+require("ggrepel")
+library(ggh4x)
+ggplot(data=df_barycentres)+
+  geom_point(data=pour_cah_comp4[pour_cah_comp4$année==2021,], aes(x=-Fermeture,y=-Discipline),shape=16, col='darkgrey')+
+  geom_point(data=pour_cah_comp4[pour_cah_comp4$année==2007,], aes(x=-Fermeture,y=-Discipline),shape=16, col='lightgrey')+
+  geom_point(aes(x=-Fermeture,y=-Discipline, col=factor(Classe)), shape=16)+
+  geom_text_repel(aes(label=année, x=-Fermeture,y=-Discipline), size=3, show.legend=FALSE)+
+  annotate(geom = "text", x= 5, y = -0.3, label = "Ouverture", size = 10/.pt) +
+  geom_path(aes(group=factor(Classe), col=factor(Classe), x=-Fermeture,y=-Discipline), arrow = arrow(length = unit(0.3, "cm")))+
+  annotate(geom = "text", x= -5.5, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = 4, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+  scale_color_manual(labels = c("public populaire", "public intermédiaire", "public favorisé (dominante scientifique)", "public favorisé (dominante littéraire)"), values = c("lightblue", "orange", "lightgreen", "violet")) +
+  theme(axis.text.x=element_blank(), axis.text.y=element_blank(), axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),legend.position="bottom",#c(.95,.9),
+  panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  size = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+@
+\caption*{\footnotesize Note : les établissements de 2007 apparaissent en gris clair sur le graphique, ceux de 2021 en gris foncé.}
+\end{figure}
+
+
+Le groupe des établissements à dominante scientifique et à composition sociale favorisée paraît se fermer fortement, pour accueillir un public encore plus favorisé en 2021 qu'en 2007 tandis que les groupes accueillant des publics populaires et intermédiaires semblent eux aller vers une ouverture sociale encore plus grande (cf. graphique \ref{graph:bary}). Ces quelques observations semblent attester d'une dynamique des extrêmes, avec un écart croissant entre les établissements favorisés et les établissements populaires. Rappelons néanmoins que sur ces dynamiques ne prennent pas en compte certains établissements importants tels que PSL ou Paris-Saclay, créés entre 2007 et 2021. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+
+\addcontentsline{toc}{section}{Références}
+\nocite{*}
+\addcontentsline{toc}{subsection}{Bibliographie}
+\printbibliography[notkeyword={Rsoftware}, title={Références}]
+
+\addcontentsline{toc}{subsection}{Logiciels et paquets}
+\printbibliography[keyword={Rsoftware}, title={Logiciels et paquets}]
+\label{sec:ref}
+
+\newpage
+
+\appendix
+\appendixpage
+\addappheadtotoc
+
+\section*{Annexe A - Informations sur les variables}
+\addcontentsline{toc}{subsection}{Annexe A}
+\label{annexea}
+
+
+<<tableau, results='asis', echo=FALSE, warning=FALSE, message=FALSE>>=
+library(kableExtra)
+library(tidyverse)
+
+a <-summary(db_complétée2$effectif)
+b <-summary(db_complétée2$Init_Excel)
+c <-summary(db_complétée2$public_défavorisé)
+d <-summary(db_complétée2$master)
+e <-summary(db_complétée2$doctorat)
+f <-summary(db_complétée2$bac_S)
+g <-summary(db_complétée2$femmes)
+h <-summary(db_complétée2$class_shanghai)
+i <-summary(db_complétée2$cohorte_shanghai)
+
+df <-  rbind(a, b, c, d, e, f, g, h, i)
+df<-data.frame(df,row.names = c("effectif", "Init_Excel", "public_défavorisé", "master", "doctorat", "bac_S", "femmes", "class_shanghai", "cohorte_shanghai"))
+
+df<-setNames(df, c("min.", "Q1", "médiane","moyenne", "Q3", "max.", "NA")
+    )
+
+df %>% kable("latex", booktabs=TRUE, digits=2, caption="Informations générales sur les principales variables \\label{tab:variables}", position = "h")
+
+@
+
+\newpage
+
+\section*{Annexe B - Suppléments concernant la régression linéaire}
+\addcontentsline{toc}{subsection}{Annexe B}
+\label{annexeb}
+
+\begin{figure}[h!]
+\caption{Régression linéaire avec l'effectif comme seule variable explicative}
+
+<<graph_lin_1, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+library(ggplot2)
+require(ggrepel)
+  ggplot(db_complétée, aes(x=effectif,y=subvention))+
+  geom_point(aes(shape=PerimEx),size=2)+
+  labs(x = "effectif",
+       y = "Subvention")+
+  geom_smooth(method="lm")+
+  geom_text_repel(aes(label=Sigle))+
+  labs(shape = "Labels")+
+  theme_minimal()
+@
+\end{figure}
+
+
+
+\begin{figure}[h!]
+\caption{Régression linéaire avec \texttt{Init\_Excel} comme seule variable explicative}
+<<graph_lin_2, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+library(ggplot2)
+require(ggrepel)
+  ggplot(db_complétée, aes(x=round(Init_Excel, digits=0),y=subvention))+
+  geom_point(aes(shape=PerimEx),size=2)+
+  labs(x = "Init_Excel",
+       y = "Subvention")+
+  geom_smooth(method="lm")+
+  geom_text_repel(aes(label=Sigle))+
+  labs(shape = "Labels")+
+  scale_x_continuous(breaks=c(0, 1, 2))+
+  theme_minimal()
+@
+\end{figure}
+
+
+
+\newpage
+
+\section*{Annexe C - Suppléments concernant le modèle Tobit}
+\addcontentsline{toc}{subsection}{Annexe C}
+\label{annexec}
+
+
+
+
+<<graphiques, include=FALSE, warning=FALSE, message=FALSE>>=
+library(ggplot2)
+
+library(tidyverse)
+db_tobit <-  db_complétée %>%  drop_na(ETABLI_DIFFUSION)
+
+library(AER)
+
+@
+
+
+\begin{figure}[h!]
+\caption{Modèle tobit avec comme unique régresseur la proportion d'étudiant·es défavorisé·es}
+<<graph 2, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+tobit2 <- tobit(data=db_tobit,class_shanghai ~public_défavorisé, right=1100)
+#stargazer(tobit2,type="text")
+
+db_tobit<-db_tobit %>% mutate(fit_tobit2=predict(tobit2), cens_fit_tobit2=fit_tobit2*(fit_tobit2<1100)+
+                                1100*(fit_tobit2>=1100))
+
+ggplot(db_tobit,aes(x=public_défavorisé,y=class_shanghai, size=I(3)))+ 
+  geom_point(aes(color = 'classement observé'), pch='o')+ 
+  geom_point(aes(x=public_défavorisé,y=fit_tobit2, col='variable latente'),pch='x')+ 
+  geom_point(aes(x=public_défavorisé,y=cens_fit_tobit2, col='modèle prédit'),pch='+')+
+  geom_text_repel(aes(label=Sigle), show.legend=FALSE)+
+  labs(color = "Légende") +
+  scale_color_manual(values=c('classement observé' = "blue", "variable latente" ='red', "modèle prédit" = 'green'))+
+  theme_minimal()
+@
+\end{figure}
+\begin{figure}[!htb]
+\caption{Modèle tobit avec comme unique régresseur la proportion de bac S}
+<<graph 1, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+tobit3 <- tobit(data=db_tobit,class_shanghai ~bac_S, right=1100)
+#stargazer(tobit3,type="text")
+db_tobit<-db_tobit %>% mutate(fit_tobit3=predict(tobit3), cens_fit_tobit3=fit_tobit3*(fit_tobit3<1100)+
+                                1100*(fit_tobit3>=1100))
+ggplot(db_tobit,aes(x=bac_S,y=class_shanghai, size=I(3)))+ 
+  geom_point(aes(color = 'classement observé'), pch='o')+ 
+  geom_point(aes(x=bac_S,y=fit_tobit3, col='variable latente'),pch='x')+ 
+  geom_point(aes(x=bac_S,y=cens_fit_tobit3, col='modèle prédit'),pch='+')+
+  geom_text_repel(aes(label=Sigle), show.legend=FALSE)+
+  labs(color = "Légende") +
+  scale_color_manual(values=c('classement observé' = "blue", "variable latente" ='red', "modèle prédit" = 'green'))+
+  theme_minimal()
+@
+\end{figure}
+
+\begin{figure}[!htb]
+\caption{Modèle tobit avec comme unique régresseur l'effectif des établissements}
+<<graph 3, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+tobit1<-tobit(data=db_tobit,class_shanghai ~effectif, right=1100) 
+#stargazer(tobit1,type="text")
+
+db_tobit<-db_tobit %>% mutate(fit_tobit1=predict(tobit1), cens_fit_tobit1=fit_tobit1*(fit_tobit1<1100)+
+                                1100*(fit_tobit1>=1100))
+
+ggplot(db_tobit,aes(x=effectif,y=class_shanghai, size=I(3)))+ 
+  geom_point(aes(color = 'classement observé'), pch='o')+ 
+  geom_point(aes(x=effectif,y=fit_tobit2, col='variable latente'),pch='x')+ 
+  geom_point(aes(x=effectif,y=cens_fit_tobit2, col='modèle prédit'),pch='+')+
+  geom_text_repel(aes(label=Sigle), show.legend=FALSE)+
+  labs(color = "Légende") +
+  scale_color_manual(values=c('classement observé' = "blue", "variable latente" ='red', "modèle prédit" = 'green'))+
+  theme_minimal()
+@
+\end{figure}
+
+\begin{figure}[!htb]
+\caption{Modèle tobit avec comme unique régresseur le taux d'étudiant·es en master}
+<<graph 4, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+library(AER)
+library(tidyverse)
+library(stargazer)
+
+tobit4<-tobit(data=db_tobit,class_shanghai ~master, right=1100) 
+#stargazer(tobit4,type="text")
+
+db_tobit<-db_tobit %>% mutate(fit_tobit4=predict(tobit4), cens_fit_tobit4=fit_tobit4*(fit_tobit4<1100)+
+                                1100*(fit_tobit4>=1100))
+
+ggplot(db_tobit,aes(x=master,y=class_shanghai, size=I(3)))+ 
+  geom_point(aes(color = 'classement observé'), pch='o')+ 
+  geom_point(aes(x=master,y=fit_tobit4, col='variable latente'),pch='x')+ 
+  geom_point(aes(x=master,y=cens_fit_tobit4, col='modèle prédit'),pch='+')+
+  geom_text_repel(aes(label=Sigle), show.legend=FALSE)+
+  labs(color = "Légende") +
+  scale_color_manual(values=c('classement observé' = "blue", "variable latente" ='red', "modèle prédit" = 'green'))+
+  theme_minimal()
+@                 
+\end{figure}
+
+
+
+
+
+\newpage
+
+\section*{Annexe D - Suppléments concernant l'ACP}
+\addcontentsline{toc}{subsection}{Annexe D}
+\label{annexed}
+
+
+\begin{figure}[h!]
+\caption{Variance expliquée par les différentes dimensions de l'ACP en 2007}
+
+<<graph pca repro, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+fviz_eig(out_pca0, 
+         addlabels = TRUE, 
+         ylim = c(0, 45),
+         xlab="Dimensions de l'ACP", 
+         ylab="Pourcentage d'inertie", 
+         main = "")
+@
+\end{figure}
+
+
+\begin{figure}[h!]
+\caption{Variance expliquée par les différentes dimensions de l'ACP en 2007, avec en individus supplémentaires les établissements de 2021}
+
+<<graph 5, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+fviz_eig(out_pca2, 
+         addlabels = TRUE, 
+         ylim = c(0, 45),
+         xlab="Dimensions de l'ACP", 
+         ylab="Pourcentage d'inertie", 
+         main = "")
+@
+\end{figure}
+
+\begin{figure}[!htb]
+\caption{Projection des individus de 2021 sur le plan de l'ACP de 2007}
+<<graph_pca_com2, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+require("ggrepel")
+ggplot(data=pour_plot[pour_plot$année==2021,],aes(x=Ouverture,y=-Discipline))+
+  geom_point(aes(col = Etablissement))+
+  geom_text_repel(aes(label=Sigle, col=Etablissement),size=2)+
+  annotate(geom = "text", x= 5, y = 0.8, label = "Ouverture", size = 10/.pt) +
+  annotate(geom = "text", x= -4, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1, y = 5, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+  theme(axis.text.x=element_blank(), axis.text.y=element_blank(), axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),legend.position="none",#c(.95,.9),
+        panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  size = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+@
+\end{figure}
+
+\begin{figure}[!htb]
+\caption{Représentation des individus de l'ACP en 2021 \label{graph:acpuniq2021}}
+<<graph_pca_graph_uniq2021, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+require("ggrepel")
+library(ggh4x)
+ggplot(data=pour_plot_cah_2021,aes(x=Ouverture,y=-Discipline))+
+  geom_point(aes(col = Etablissement))+
+  annotate(geom = "text", x= 5, y = 0.8, label = "Ouverture", size = 10/.pt) +
+  annotate(geom = "text", x= -5, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1, y = 5, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+  geom_text_repel(aes(label=Sigle, col = Etablissement),size=2)+
+  theme(axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),legend.position="none",#c(.95,.9),
+        panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  linewidth = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+
+@
+\end{figure}
+
+\newpage
+
+
+
+\section*{Annexe E - Suppléments concernant la CAH}
+\addcontentsline{toc}{subsection}{Annexe E}
+\label{annexee}
+
+\begin{figure}[h!]
+\caption{Représentation des barycentres de la typologie à quatre groupes issue de la CAH de 2007}
+<<graph_cah_graphenplus1, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+
+ggplot(data=pour_plot_hcpc1,aes(x=-Fermeture,y=-Discipline,color=Classe))+
+  geom_point(shape=16)+
+  geom_point(data=df_barycentres[année==2007,], shape=16, col='black')+
+  annotate(geom = "text", x= 5, y = -0.3, label = "Ouverture", size = 10/.pt) +
+  annotate(geom = "text", x= -5.5, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = 4, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+  scale_color_manual(labels = c("public populaire", "public intermédiaire", "public favorisé (dominante scientifique)", "public favorisé (dominante littéraire)"), values = c("lightblue", "orange", "lightgreen", "violet")) +
+    theme(axis.text.x=element_blank(), axis.text.y=element_blank(), axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),
+        panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  legend.position='bottom',
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  size = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+
+
+@
+\caption*{\footnotesize Note : en noir apparaît le barycentre de chacun des groupe.}
+\end{figure}
+
+
+
+
+
+
+\begin{figure}[h!]
+\caption{Projection des individus de 2021 sur le plan de l'ACP de 2007 en conservant la typologie de la CAH de 2007}
+<<graph_cah_comp8, results='asis', echo=FALSE, warning=FALSE, message=FALSE, fig.width=10,fig.height=5>>=
+require("ggrepel")
+library(ggh4x)
+ggplot(data=pour_cah_comp4[pour_cah_comp4$année==2021,])+
+  geom_point(aes(x=-Fermeture,y=-Discipline, col=classe_cah),shape=16)+
+  geom_text_repel(aes(label=Sigle, x=-Fermeture,y=-Discipline, col=classe_cah), size=2, show.legend=FALSE)+
+  annotate(geom = "text", x= 5, y = -0.3, label = "Ouverture", size = 10/.pt) +
+  annotate(geom = "text", x= -5.5, y = -0.3, label = "Fermeture sociale", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = 4, label = "Dominante littéraire", size = 10/.pt) +
+  annotate(geom = "text", x= 1.1, y = -6, label = "Dominante scientifique", size = 10/.pt) +
+    scale_color_manual(labels = c("public populaire", "public intermédiaire", "public favorisé (dominante scientifique)", "public favorisé (dominante littéraire)"), values = c("lightblue", "orange", "lightgreen", "violet")) +
+  theme(axis.text.x=element_blank(), axis.text.y=element_blank(), axis.title.x = element_blank(),
+  axis.title.y = element_blank(), plot.title=element_text(hjust=0.5),legend.position="bottom",#c(.95,.9),
+  panel.background =element_rect(fill="white"),legend.title=element_blank(), 
+  axis.line.y = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")),
+        axis.line.x = element_line(arrow = arrow(length = unit(0.3, "cm"), 
+                                                       ends = "both")), 
+  panel.grid = element_line(color = "#e8e8e8",
+                                  size = 0.75,
+                                  linetype = 1)) +
+  coord_axes_inside(labels_inside = TRUE)
+
+@
+\caption*{\footnotesize Note : le groupe d'appartenance de chaque établissement est celui issu de la CAH de 2007, les établissements créés depuis 2007 ont été ôtés du graphique.}
+\end{figure}
+\end{document}
